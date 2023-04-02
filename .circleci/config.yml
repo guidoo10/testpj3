@@ -26,7 +26,7 @@ commands:
           name: Destroy udapeople backend cfn stack
           command: |
             wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            gunzip awscliv2.zip
+            unzip awscliv2.zip
             wait 30
             sudo ./aws/install
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
@@ -350,7 +350,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["06:55:19:5c:75:9c:0c:fa:5e:f0:ed:c4:2b:35:ec:76"]
+          fingerprints: ["c3:1d:42:d8:08:46:51:f1:81:fc:a5:0a:1e:93:cf:20"]
       - attach_workspace:
           at: .
       - run:
