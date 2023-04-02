@@ -12,7 +12,6 @@ executors:
     docker:
       - image: amazon/aws-cli
 
-
 commands:
   destroy_environment:
     description: Destroy Cloud Formation Stacks and infrastructure
@@ -38,28 +37,6 @@ commands:
               TERM: xterm-256color
           when: << parameters.when >>
 
-  revert_migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      when:
-        type: string
-      id:
-        type: string
-    steps:
-      - run:
-          name: Revert migrations
-          working_directory: ./backend
-          command: |
-            SUCCESS=$(curl -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request GET https://api.memstash.io/values/DB_MIGRATION_<< parameters.id >>)
-            echo $SUCCESS
-            if [[ "$SUCCESS" == "success" ]]
-            then
-              pwd
-              ls -la
-              npm run migrations:revert
-            fi
-          when: << parameters.when >>
-
 jobs:
 
   install-backend-dependencies:
@@ -75,7 +52,6 @@ jobs:
           paths:
             - backend/node_modules
 
-
   install-frontend-dependencies:
    executor: node
    steps:
@@ -88,7 +64,6 @@ jobs:
           root: .
           paths:
             - frontend/node_modules
-
 
   build-backend:
     executor: node
@@ -105,7 +80,6 @@ jobs:
           paths:
             - backend/dist
 
-
   build-frontend:
     executor: node
     steps:
@@ -116,7 +90,6 @@ jobs:
           name: npm run build
           working_directory: ./frontend
           command: npm run build
-
 
   test-frontend:
     executor: node
@@ -139,7 +112,6 @@ jobs:
       - store_artifacts:
           path: ./frontend/test_results
 
-
   test-backend:
     executor: node
     steps:
@@ -161,7 +133,6 @@ jobs:
       - store_artifacts:
           path: ./backend/test_results
 
-
   scan-frontend:
     executor: node
     steps:
@@ -176,8 +147,6 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-
-
   scan-backend:
     executor: node
     steps:
@@ -192,9 +161,6 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-
-
-
   deploy-infrastructure:
     executor: aws
     steps:
@@ -274,42 +240,6 @@ jobs:
           when: on_fail
 
 
-  run-migrations:
-    executor: node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install AWS CLI dependencies
-          working_directory: /tmp
-          command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Run migrations
-          working_directory: ./backend
-          command: |
-            npm run migrations > migration_status
-      - run:
-          name: Send migration results to memstash
-          working_directory: ./backend
-          command: |
-            if grep -q "has been executed successfully" migration_status
-            then
-              echo "DB migration was successful, will update memstash..."
-              curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-            else
-              echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-              curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-            fi
-            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-
 
   deploy-frontend:
     executor: node
@@ -377,94 +307,6 @@ jobs:
       - revert_migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
-
-
-  smoke-test:
-    executor: python
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install dependencies
-          working_directory: /tmp
-          command: |
-            apk add --update curl nodejs npm
-            pip install awscli
-      - run:
-          name: Backend smoke test.
-          working_directory: ./backend
-          command: |
-            export BACKEND_URL=$(curl -H "token: 1e288415-cfc8-4a0a-a23c-087eb7cd7678" --request GET https://api.memstash.io/values/BACKEND_URL)
-            curl "$BACKEND_URL/api/status"
-      - run:
-          name: Frontend smoke test.
-          working_directory: ./backend
-          command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/index.html"
-            curl -s ${URL} | grep -q "Welcome"
-      - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-      - revert_migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-
-
-  cloudfront-update:
-    executor: aws
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            yum install -y tar gzip curl
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
-      - run:
-          name: Store old WorkflowID in memstash for cleanup phase
-          working_directory: ./.circleci/files
-          command: |
-            WorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-            curl -H "Content-Type: text/plain" -H "token: 1513db3b-15be-4750-bae6-3a8d32dd6de2" --request PUT --data "$WorkflowID" https://api.memstash.io/values/WorkflowID
-      - run:
-          name: Update cloudfront distribution
-          working_directory: ./.circleci/files
-          command: |
-            aws cloudformation deploy \
-              --template-file cloudfront.yaml \
-              --stack-name udapeople-cloudfront-production \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople
-      - revert_migrations:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
-
-
-  cleanup:
-    executor: aws
-    steps:
-      - checkout
-      - run:
-          name: Clean up old environment
-          command: |
-            OldWorkflowID=$(curl -H "token: 1513db3b-15be-4750-bae6-3a8d32dd6de2" --request GET https://api.memstash.io/values/WorkflowID)
-            CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
-
-            if [[ "$CurrentWorkflowID" != "$OldWorkflowID" ]]
-            then
-              echo "$OldWorkflowID!=$CurrentWorkflowID => will delete old version"
-
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-            else
-              echo "$OldWorkflowID==$CurrentWorkflowID => nothing needs to be done..."
-            fi
-          environment:
-            TERM: xterm-256color
 
 
 workflows:
