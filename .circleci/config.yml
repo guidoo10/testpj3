@@ -12,6 +12,7 @@ executors:
     docker:
       - image: amazon/aws-cli
 
+
 commands:
   destroy_environment:
     description: Destroy Cloud Formation Stacks and infrastructure
@@ -52,6 +53,7 @@ jobs:
           paths:
             - backend/node_modules
 
+
   install-frontend-dependencies:
    executor: node
    steps:
@@ -64,6 +66,7 @@ jobs:
           root: .
           paths:
             - frontend/node_modules
+
 
   build-backend:
     executor: node
@@ -80,6 +83,7 @@ jobs:
           paths:
             - backend/dist
 
+
   build-frontend:
     executor: node
     steps:
@@ -90,6 +94,7 @@ jobs:
           name: npm run build
           working_directory: ./frontend
           command: npm run build
+
 
   test-frontend:
     executor: node
@@ -112,6 +117,7 @@ jobs:
       - store_artifacts:
           path: ./frontend/test_results
 
+
   test-backend:
     executor: node
     steps:
@@ -133,6 +139,7 @@ jobs:
       - store_artifacts:
           path: ./backend/test_results
 
+
   scan-frontend:
     executor: node
     steps:
@@ -147,6 +154,8 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+
+
   scan-backend:
     executor: node
     steps:
@@ -161,6 +170,9 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+
+
+
   deploy-infrastructure:
     executor: aws
     steps:
@@ -241,6 +253,7 @@ jobs:
 
 
 
+
   deploy-frontend:
     executor: node
     steps:
@@ -284,7 +297,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["06:55:19:5c:75:9c:0c:fa:5e:f0:ed:c4:2b:35:ec:76"]
+          fingerprints: ["c3:1d:42:d8:08:46:51:f1:81:fc:a5:0a:1e:93:cf:20"]
       - attach_workspace:
           at: .
       - run:
@@ -355,3 +368,19 @@ workflows:
             branches:
               only:
                 - master
+      - deploy-backend:
+          requires:
+            - run-migrations
+      - deploy-frontend:
+          requires:
+            - run-migrations
+      - smoke-test:
+          requires:
+            - deploy-backend
+            - deploy-frontend
+      - cloudfront-update:
+          requires:
+            - smoke-test
+      - cleanup:
+          requires:
+            - cloudfront-update
