@@ -186,8 +186,6 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
           name: Fetch public IP and append in inventory file
-      - attach_workspace:
-          at: .circleci/ansible/
           command: |
             public_IP_backend=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -212,7 +210,7 @@ jobs:
           fingerprints: ["f6:65:f3:9b:c0:38:ce:cf:4d:52:df:4e:58:da:3b:81"]
       # attach workspace
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible/
       - run:
           name: Install ansible.
           command: |
