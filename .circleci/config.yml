@@ -285,7 +285,6 @@ jobs:
             pip install awscli
       - run:
           name: Configure server
-          working_directory: ./.circleci/ansible
           command: |
             pwd &&
             cat ./.circleci/ansible/inventory.txt
