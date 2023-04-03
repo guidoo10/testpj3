@@ -14,8 +14,37 @@ executors:
 
 
 commands:
+
+  install_ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install 
+  install_nodejs:
+   description: Install Node.js 13
+   steps:
+     - run:
+         name: Install Node.js 13
+         command: |
+           curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+           sudo apt install -y nodejs
+  
   destroy_environment:
-    description: Destroy Cloud Formation Stacks and infrastructure
+    description: Destroy Enite Env
     parameters:
       when:
         type: string
@@ -23,18 +52,14 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy udapeople backend cfn stack
+          name: Destroy udapeople backend
           command: |
-            wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            wait 30
-            sudo ./aws/install
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
           environment:
             TERM: xterm-256color
           when: << parameters.when >>
       - run:
-          name: Destroy udapeople frontend cfn stack and S3 bucket
+          name: Destroy udapeople frontend and S3 bucket
           command: |
             aws s3 rm s3://udapeople-<< parameters.id >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
@@ -43,7 +68,7 @@ commands:
           when: << parameters.when >>
 
   revert_migrations:
-    description: Revert the last migration if successfully run in the current workflow.
+    description: Revert the last migration
     parameters:
       when:
         type: string
