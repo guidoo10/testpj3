@@ -4,10 +4,10 @@ version: 2.1
 executors:
   node:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:14.8.1
   python:
     docker:
-      - image: python:3.9.0-alpine
+      - image: python:3.7-alpine3.11
   aws:
     docker:
       - image: amazon/aws-cli
@@ -255,7 +255,7 @@ jobs:
           working_directory: ./.circleci/ansible
           command: |
             aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> inventory
             cat inventory
@@ -282,6 +282,7 @@ jobs:
           command: |
             apk add --update ansible
             ansible --version
+            pip install awscli
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -289,7 +290,7 @@ jobs:
             pwd &&
             ls -la
             cat inventory
-            ansible-playbook -vvv -i inventory configure-server.yaml
+            ansible-playbook -vvv -i inventory.txt configure-server.yaml
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
