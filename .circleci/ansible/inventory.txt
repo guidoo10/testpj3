@@ -1,1 +1,0 @@
-ec2-34-228-156-124.compute-1.amazonaws.com
