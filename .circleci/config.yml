@@ -257,8 +257,8 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> inventory
-            cat inventory
+              --output text >> inventory.txt
+            cat inventory.txt
       - persist_to_workspace:
           root: .
           paths:
@@ -275,7 +275,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["c3:1d:42:d8:08:46:51:f1:81:fc:a5:0a:1e:93:cf:20"]
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
@@ -289,7 +289,7 @@ jobs:
           command: |
             pwd &&
             ls -la
-            cat inventory
+            cat inventory.txt
             ansible-playbook -vvv -i inventory.txt configure-server.yaml
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -301,15 +301,9 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: .
-      - run:
-          name: Install AWS CLI dependencies
-          working_directory: /tmp
-          command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+          at: ~/
+      - install_awscli
+      - install_nodejs
       - run:
           name: Run migrations
           working_directory: ./backend
