@@ -326,7 +326,7 @@ jobs:
             cd backend
             npm run build
             cd ..
-            cd .circleci/ansible
+            cd .circleci/ansible/
             mkdir files
             cd files
             tar -C ../../../backend -czvf artifact.tar.gz .
