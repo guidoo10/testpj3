@@ -187,17 +187,17 @@ jobs:
       - run:
           name: Fetch public IP and append in inventory file
           command: |
-            echo [web] > ./.circleci/ansible/inventory.txt
+            
             public_IP_backend=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
-            echo $public_IP_backend >> ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt
+            echo $public_IP_backend >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: .circleci/ansible/ 
+          root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
 
   configure-infrastructure:
