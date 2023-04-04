@@ -211,7 +211,7 @@ jobs:
           fingerprints: ["f6:65:f3:9b:c0:38:ce:cf:4d:52:df:4e:58:da:3b:81"]
       # attach workspace
       - attach_workspace:
-          at: .circleci/ansible/
+          at: ~/
       - run:
           name: Install ansible.
           command: |
