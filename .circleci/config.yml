@@ -1,7 +1,8 @@
 version: 2.1
 commands:
+  #installing basics components 
   install_ansible:
-    description: Install Ansible
+    description: Installing ansible 
     steps:
       - run:
           name: Installing  Ansible
@@ -10,23 +11,26 @@ commands:
             sudo apt install software-properties-common -y
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
+  
   install_awscli:
-    description: Install AWS CLI v2
+    description: Installing AWS CLI v2
     steps:
       - run:
-          name: Install AWS CLI v2
+          name: Installing AWS CLI v2
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install 
+  
   install_nodejs:
    description: Installing  Node.js 13
    steps:
      - run:
-         name: Install Node.js 13
+         name: Installing Node.js 13
          command: |
            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
            sudo apt install -y nodejs
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -54,7 +58,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl --insecure  https://kvdb.io/TxYrjExGDEEPMqmm7MEgUk/migration_)
+            SUCCESS=$(curl -insecure https://kvdb.io/HYVsktrdD9ih254pMoABBK/migration_$\{CIRCLE_WORKFLOW_ID:0:7})
             # Logic for reverting the database state
             echo $SUCCESS
             if [[ $SUCCESS == 1 ]];
@@ -258,7 +262,7 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               echo "Hello there !!!"
-              curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/HYVsktrdD9ih254pMoABBK/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment # Here's where you will add some code to rollback on failure
 
@@ -398,7 +402,7 @@ jobs:
                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                      --no-paginate --output text)
            echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
-           curl https://kvdb.io/${KVDB_BUCKET}/old_workflow_id -d "${OLD_WORKFLOW_ID}"
+           curl https://kvdb.io/HYVsktrdD9ih254pMoABBK/old_workflow_id -d "${OLD_WORKFLOW_ID}"
      - run:
          name: Updating CF distribution
          command: |
