@@ -396,7 +396,7 @@ jobs:
      - install_nodejs
      - install_awscli
      - run:
-         name: Saving Old Workflow ID to KVDB
+         name: Saving Old Workflow ID to KVDB.
          command: |
            export OLD_WORKFLOW_ID=$(aws cloudformation \
                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
