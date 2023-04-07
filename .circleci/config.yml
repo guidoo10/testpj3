@@ -281,7 +281,7 @@ jobs:
      - install_nodejs
      - install_ansible
      - run:
-         name: Install dependencies
+         name: Install dependenciess
          command: |
            cd frontend
            npm install
