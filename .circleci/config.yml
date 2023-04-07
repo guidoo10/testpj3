@@ -386,8 +386,8 @@ jobs:
               exit 1
             fi
       # Here's where you will add some code to rollback on failure  
-      #- destroy-environment
-      #- revert-migrations
+      - destroy-environment
+      - revert-migrations
   cloudfront-update:
    docker:
      - image: cimg/base:stable # Docker image here that supports AWS CLI
@@ -411,8 +411,8 @@ jobs:
              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
              --stack-name InitialStack
      # Here's where you will add some code to rollback on failure
-     #- destroy-environment 
-     #- revert-migrations
+     - destroy-environment 
+     - revert-migrations
   cleanup:
     docker:
       # Docker image 
@@ -470,5 +470,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      #- cleanup:
+          #requires: [cloudfront-update]
