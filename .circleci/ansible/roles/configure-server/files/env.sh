@@ -4,6 +4,6 @@ export TYPEORM_HOST: rds-postgresql.cfvw000qivql.us-east-1.rds.amazonaws.com
 export TYPEORM_PORT: 5432
 export TYPEORM_USERNAME: postgres
 export TYPEORM_PASSWORD: Anjul2112
-export TYPEORM_DATABASE: postgres
+export TYPEORM_DATABASE: rds-postgresql
 export TYPEORM_MIGRATIONS: ./src/migrations/*.ts
 export TYPEORM_MIGRATIONS_DIR: ./src/migrations
