@@ -268,7 +268,7 @@ jobs:
 
   deploy-frontend:
    docker:
-     - image: cimg/base:stable # Docker image here that supports AWS CLI
+     - image: python:3.11-rc-alpine # Docker image here that supports AWS CLI
    steps:
      - checkout # Checkout code from git
 
@@ -293,7 +293,7 @@ jobs:
              --query 'Reservations[*].Instances[*].PublicIpAddress' \
              --output text);
            export URL="http://${BCKEND_IP}:3030"
-           echo "URL = ${URL}"
+           echo "${URL}"
            echo URL="http://${BCKEND_IP}:3030" >> frontend/.env
            echo ENVIRONMENT=production  >> frontend/.env
            echo NODE_ENV=production >> frontend/.env 
@@ -312,7 +312,7 @@ jobs:
 
   deploy-backend:
     docker: # Docker image here that supports Ansible
-      - image: cimg/base:stable
+      - image: python:3.11-rc-alpine
     steps:
       - checkout # Checkout code from git
       - add_ssh_keys:
