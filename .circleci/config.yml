@@ -293,7 +293,7 @@ jobs:
              --query 'Reservations[*].Instances[*].PublicIpAddress' \
              --output text);
            export URL="http://${BCKEND_IP}:3030"
-           echo "URL = ${URL}"
+           echo "${URL}"
            echo URL="http://${BCKEND_IP}:3030" >> frontend/.env
            echo ENVIRONMENT=production  >> frontend/.env
            echo NODE_ENV=production >> frontend/.env 
