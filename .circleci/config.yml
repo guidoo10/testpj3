@@ -293,7 +293,7 @@ jobs:
              --query 'Reservations[*].Instances[*].PublicIpAddress' \
              --output text);
            export URL="http://${BCKEND_IP}:3030"
-           echo "${URL}"
+           echo "URL = ${URL}"
            echo URL="http://${BCKEND_IP}:3030" >> frontend/.env
            echo ENVIRONMENT=production  >> frontend/.env
            echo NODE_ENV=production >> frontend/.env 
@@ -312,7 +312,7 @@ jobs:
 
   deploy-backend:
     docker: # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.11
+      - image: cimg/base:stable
     steps:
       - checkout # Checkout code from git
       - add_ssh_keys:
@@ -326,8 +326,6 @@ jobs:
       - run:
           name: Installing npm dependencies 
           command: |
-            apk add --update tar gzip ansible nodejs npm
-            pip install awscli
             cd backend
             npm install
 
