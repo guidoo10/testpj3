@@ -284,6 +284,8 @@ jobs:
          name: Install dependenciess
          command: |
            cd frontend
+           apk add --update curl
+           pip install awscli
            npm install
      - run:
          name: Get backend url
@@ -327,6 +329,9 @@ jobs:
           name: Installing npm dependencies 
           command: |
             cd backend
+            apk add --update ansible nodejs curl
+            apk add --update npm -u
+            pip install awscli
             npm install
 
       - run:
