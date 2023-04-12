@@ -312,7 +312,7 @@ jobs:
 
   deploy-backend:
     docker: # Docker image here that supports Ansible
-      - image: cimg/base:stable
+      - image: python:3.7-alpine3.11
     steps:
       - checkout # Checkout code from git
       - add_ssh_keys:
@@ -326,6 +326,8 @@ jobs:
       - run:
           name: Installing npm dependencies 
           command: |
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
             cd backend
             npm install
 
