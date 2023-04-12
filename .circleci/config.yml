@@ -268,7 +268,7 @@ jobs:
 
   deploy-frontend:
    docker:
-     - image: python:3.11-rc-alpine # Docker image here that supports AWS CLI
+     - image: cimg/base:stable # Docker image here that supports AWS CLI
    steps:
      - checkout # Checkout code from git
 
@@ -284,8 +284,6 @@ jobs:
          name: Install dependenciess
          command: |
            cd frontend
-           apk add --update curl
-           pip install awscli
            npm install
      - run:
          name: Get backend url
@@ -295,7 +293,7 @@ jobs:
              --query 'Reservations[*].Instances[*].PublicIpAddress' \
              --output text);
            export URL="http://${BCKEND_IP}:3030"
-           echo "${URL}"
+           echo "URL = ${URL}"
            echo URL="http://${BCKEND_IP}:3030" >> frontend/.env
            echo ENVIRONMENT=production  >> frontend/.env
            echo NODE_ENV=production >> frontend/.env 
@@ -314,7 +312,7 @@ jobs:
 
   deploy-backend:
     docker: # Docker image here that supports Ansible
-      - image: python:3.11-rc-alpine
+      - image: cimg/base:stable
     steps:
       - checkout # Checkout code from git
       - add_ssh_keys:
@@ -329,9 +327,6 @@ jobs:
           name: Installing npm dependencies 
           command: |
             cd backend
-            apk add --update ansible nodejs curl
-            apk add --update npm -u
-            pip install awscli
             npm install
 
       - run:
