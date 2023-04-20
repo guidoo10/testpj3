@@ -215,7 +215,7 @@ jobs:
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: ["f6:65:f3:9b:c0:38:ce:cf:4d:52:df:4e:58:da:3b:81"]
+          fingerprints: ["43:23:77:b9:8d:3f:b5:59:9f:4b:b5:a6:95:42:be:95"]
       # attach workspace
       - attach_workspace:
           at: ~/
@@ -274,7 +274,7 @@ jobs:
 
      - add_ssh_keys:
           fingerprints: 
-            - "f6:65:f3:9b:c0:38:ce:cf:4d:52:df:4e:58:da:3b:81"
+            - "43:23:77:b9:8d:3f:b5:59:9f:4b:b5:a6:95:42:be:95"
      - attach_workspace:
          at: ~/    
      - install_awscli
@@ -317,7 +317,7 @@ jobs:
       - checkout # Checkout code from git
       - add_ssh_keys:
           fingerprints: # Add ssh keys with fingerprint
-            - "f6:65:f3:9b:c0:38:ce:cf:4d:52:df:4e:58:da:3b:81"
+            - "43:23:77:b9:8d:3f:b5:59:9f:4b:b5:a6:95:42:be:95"
       - attach_workspace: # attach workspace
          at: ~/
       - install_awscli
