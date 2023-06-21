@@ -248,7 +248,6 @@ jobs:
       - attach_workspace: 
           at: ~/
       - install_awscli
-      - install_nodejs
       - run:
           name: Run migrations
           command: |
