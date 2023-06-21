@@ -28,7 +28,7 @@ commands:
      - run:
          name: Installing Node.js 13
          command: |
-           curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+           curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
            sudo apt install -y nodejs
 
   destroy-environment:
@@ -242,7 +242,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:14.18.1 # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0 # Docker image here that supports NodeJS
     steps:
       - checkout # Checkout code from git
       - attach_workspace: 
@@ -294,7 +294,8 @@ jobs:
            export API_URL="http://${BACKEND_IP}:3030"
            echo "API_URL = ${API_URL}"
            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-           echo ENVIRONMENT=production  >> frontend/.env 
+           echo ENVIRONMENT=production  >> frontend/.env
+           echo NODE_ENV=production >> frontend/.env 
            cat frontend/.env
      - run:
          name: Deploy frontend objects
